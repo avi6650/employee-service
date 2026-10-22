@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'gradle'
+
+      - name: Make Gradle Wrapper Executable
+        run: chmod +x gradlew
+
+      - name: Build and Run Tests
+        run: ./gradlew clean build --no-daemon
+
+      - name: Upload Executable JAR
+        uses: actions/upload-artifact@v7
+        with:
+          name: employee-service-jar
+          path: build/libs/*.jar
+          if-no-files-found: error
+          retention-days: 7
